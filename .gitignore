@@ -38,12 +38,15 @@ venv.bak/
 
 # Audio files
 audio/
-*.wav
 *.mp3
 *.ogg
 *.flac
 *.m4a
 *.aac
+
+# Exclude demo files from ignore
+!demo_*.wav
+!*_demo.wav
 
 # Piper TTS models
 .pipertts/
