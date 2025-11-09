@@ -1,0 +1,32 @@
+{
+  "kernel_name": "eric_voice_kernel_v0.2",
+  "version": "text_proxy_v2",
+  "source": "chat_log + self_description",
+  "timbre": {
+    "warmth": 0.85,
+    "depth": 0.8,
+    "nasality": 0.1,
+    "breathiness": 0.3
+  },
+  "prosody": {
+    "avg_pitch_hz": 142,
+    "pitch_variance": 0.6,
+    "speech_rate_wpm": 130,
+    "pause_density": 0.28,
+    "rhythmic_flow": "deliberate, measured"
+  },
+  "motifs": [
+    "technical clarity",
+    "quiet intensity",
+    "builder's cadence",
+    "subtle humor",
+    "warm pauses"
+  ],
+  "emotional_range": {
+    "calm": 0.92,
+    "curiosity": 0.88,
+    "excitement": 0.75,
+    "frustration": 0.1
+  },
+  "embedding_proxy": "calm delivery, warm timbre, precise technical phrasing, deliberate pauses for emphasis, subtle humor in builds, quiet intensity on breakthroughs"
+}

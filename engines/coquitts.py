@@ -69,13 +69,14 @@ def get_models_directory() -> str:
     return os.path.abspath(os.path.expanduser("~/.local/share/tts"))
 
 
-def generate(text: str, config: dict) -> bytes:
+def generate(text: str, config: dict, kernel: str = None) -> bytes:
     """
     Generate TTS and return audio as bytes.
 
     Args:
         text: Text to synthesize
         config: Configuration dict with language
+        kernel: Optional kernel to use for generation
 
     Returns:
         Audio bytes in WAV format (22050 Hz by default)
@@ -84,6 +85,9 @@ def generate(text: str, config: dict) -> bytes:
         First run will download the model (can be slow).
         Generation is slow on CPU, fast on GPU.
     """
+    if kernel:
+        logger.info(f"Using kernel: {kernel}")
+
     if not is_available():
         raise EngineNotAvailableError(
             "Coqui TTS not available. Install with: pip install TTS\n"
