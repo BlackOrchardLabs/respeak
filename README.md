@@ -1,114 +1,259 @@
-Universal Text-to-Speech System with Online and Offline Capabilities
+# Voice Kernel TTS (Soul Forge: Audio Layer)
 
-## Project Overview
+Portable, JSON-defined voice "kernels" that drive multi-engine TTS voice cloning.
 
-This library provides a unified interface for various text-to-speech synthesis systems, enabling seamless switching between online and offline engines based on requirements and internet connectivity.
+## Why
 
-Key Features:
-- Online synthesis through Google TTS
-- Offline synthesis using espeak and Piper
-- Unified interface for all engines
-- Multi-language support
-- Multiple audio output formats
-- CLI and Python API
+Fine-tuning is heavy and non-portable. Style transfer is fast but coarse. Voice kernels are lightweight, tunable, and portable.
 
-## Installation
+## What's Inside
+
+- **Kernel spec** (timbre/prosody/motifs/emotion)
+- **Kernel loader** (`libs/kernel_loader.py`)
+- **Coqui XTTS v2 demo** with reference speaker WAV
+- **Record/validate scripts**
+- **Interactive say-anything tool**
+
+## Demo
+
+Listen to [demo_snowcrash_metaverse.wav](demo_snowcrash_metaverse.wav) - a voice clone speaking about the Metaverse from Snow Crash.
+
+## Quickstart
+
+### Requirements
+- Python 3.11 (required for Coqui TTS)
+- Visual Studio Build Tools (Windows)
+- 30-second clean voice sample (22,050 Hz WAV)
+
+### Installation
 
 ```bash
-# System dependencies (Linux)
-sudo apt install espeak espeak-data libespeak1 python3-pip
-# Python dependencies
-pip install -r requirements.txt
+# Clone the repository
+git clone https://github.com/BlackOrchardLabs/voice-kernel-tts.git
+cd voice-kernel-tts
+
+# Install dependencies (use Python 3.11)
+C:\Python311\python.exe -m pip install TTS soundfile sounddevice transformers==4.33.0
 ```
 
-## Usage
-
-### Basic examples
+### Record Your Voice
 
 ```bash
-# Google TTS (online)
-python cli.py "Hello world"
-# espeak (offline)
-python cli.py "Hello world" --engine pyttsx3
-# Another languages
-python cli.py "Hola amigo!" --language es
-# Save with automatic name
-python cli.py "Hello world" --file
-# Save to specific file
-python cli.py "Hello world" --file output.mp3
-# Google TTS (best quality)
-python cli.py "Hello world" --engine gtts
-# espeak (fast, offline)
-python cli.py "Hello world" --engine pyttsx3
-# Piper (high-quality offline)
-python cli.py "Hello world" --engine pipertts
-# Read from file
-python cli.py -i input.txt
-python cli.py -i input.txt --file output.mp3
-# BytesIO
-python cli.py "Hello world" --stdout | python3 play.py
-# Multiple outputs
-python cli.py "Hello world" --output play,file 
+C:\Python311\python.exe record_voice.py
 ```
 
-### Python API
+This will:
+- Prompt you to record 30 seconds
+- Automatically normalize volume
+- Save to `samples/eric_voice_clean.wav`
+
+### Create Your Voice Kernel
+
+Create `kernels/your_voice_kernel.json`:
+
+```json
+{
+  "kernel_name": "your_voice_kernel_v0.1",
+  "version": "text_proxy_v2",
+  "source": "recorded_sample",
+  "timbre": {
+    "warmth": 0.85,
+    "depth": 0.8,
+    "nasality": 0.1,
+    "breathiness": 0.3
+  },
+  "prosody": {
+    "avg_pitch_hz": 142,
+    "pitch_variance": 0.6,
+    "speech_rate_wpm": 130,
+    "pause_density": 0.28,
+    "rhythmic_flow": "deliberate, measured"
+  },
+  "motifs": [
+    "technical clarity",
+    "quiet intensity",
+    "builder's cadence"
+  ],
+  "emotional_range": {
+    "calm": 0.92,
+    "curiosity": 0.88,
+    "excitement": 0.75
+  }
+}
+```
+
+### Clone Your Voice
+
+#### Option 1: Interactive (Recommended)
+
+```bash
+C:\Python311\python.exe say_anything.py
+```
+
+Type any text and hear it in your voice!
+
+#### Option 2: Single Test
+
+```bash
+C:\Python311\python.exe test_voice_clone.py
+```
+
+Generates `eric_voice_clone_test.wav` with predefined text.
+
+## Kernel Example
+
+The voice kernel format captures vocal identity as portable JSON:
+
+```json
+{
+  "kernel_name": "eric_voice_kernel_v0.2",
+  "timbre": {
+    "warmth": 0.85,
+    "depth": 0.8,
+    "nasality": 0.1,
+    "breathiness": 0.3
+  },
+  "prosody": {
+    "avg_pitch_hz": 142,
+    "speech_rate_wpm": 130,
+    "pause_density": 0.28,
+    "rhythmic_flow": "deliberate, measured"
+  },
+  "motifs": [
+    "technical clarity",
+    "quiet intensity",
+    "builder's cadence",
+    "subtle humor",
+    "warm pauses"
+  ],
+  "emotional_range": {
+    "calm": 0.92,
+    "curiosity": 0.88,
+    "excitement": 0.75,
+    "frustration": 0.10
+  }
+}
+```
+
+## Architecture
+
+### Voice Kernel Loader
 
 ```python
-from libs.api import text_to_speech_file, text_to_speech_bytes
+from libs.kernel_loader import load_kernel
 
-# Save to file
-filename = text_to_speech_file("Hello world!", engine="gtts")
-print(f"File created: {filename}")
+# Load kernel with audio reference
+kernel = load_kernel(
+    "kernels/eric_voice_kernel.json",
+    audio_path="samples/eric_voice_clean.wav"
+)
 
-# Get as bytes (for web apps)
-audio_bytes = text_to_speech_bytes("Hello world!", engine="gtts")
+# Access parameters
+print(kernel.timbre)          # {"warmth": 0.85, ...}
+print(kernel.prosody)         # {"avg_pitch_hz": 142, ...}
+print(kernel.motifs)          # ["technical clarity", ...]
+print(kernel.get_speaker_wav())  # "samples/eric_voice_clean.wav"
 ```
 
-## Project structure
+### Integration with Coqui TTS
 
-```
-text-to-speech/
-├── engines/
-│   ├── gtts.py
-│   ├── pyttsx3.py
-│   ├── silerotts.py
-│   ├── coquitts.py
-│   └── piper.py
-├── libs/
-│   ├── api.py
-│   ├── tools.py
-│   ├── playback.py
-│   └── exceptions.py
-├── bin/
-│   ├── install_pipertts.sh
-│   ├── install_coquitts.sh
-│   └── install_silerotts.sh
-├── docs/
-│   ├── COQUITTS.md
-│   ├── ENGINES.md
-│   ├── PIPERTTS.md
-│   └── SILEROTTS.md
-├── cli.py
-├── test_tts.py
-├── play.py
-└── requirements.txt
+```python
+from TTS.api import TTS
 
+# Initialize TTS
+tts = TTS(model_name="tts_models/multilingual/multi-dataset/xtts_v2")
+
+# Generate speech with voice kernel
+tts.tts_to_file(
+    text="Your text here",
+    file_path="output.wav",
+    speaker_wav=kernel.get_speaker_wav(),
+    language="en"
+)
 ```
 
-### Installing dependencies
+## Technical Details
 
-Install runtime (user) dependencies:
+### Audio Format
+- **Sample rate:** 22,050 Hz
+- **Channels:** Mono (automatically converted if stereo)
+- **Duration:** 30 seconds minimum recommended
+- **Format:** WAV (MP3 conversion available via `convert_audio.py`)
 
-```bash
-pip install -r requirements.txt
-```
+### Dependencies
+- **TTS** (Coqui XTTS v2)
+- **soundfile** (audio I/O, patches torchaudio issues)
+- **sounddevice** (recording)
+- **transformers==4.33.0** (pinned for compatibility)
+- **torch** (PyTorch 2.6+)
 
-Install developer tools (linters, type checkers, test tools):
+### Known Issues
 
-```bash
-pip install -r requirements-dev.txt
-```
+**Windows Audio Backend:**
+- Torchaudio's torchcodec dependency has compatibility issues on Windows
+- We patch this by using soundfile directly (see `test_voice_clone.py`)
+
+**PyTorch 2.6+ Security:**
+- Requires safe_globals for model loading
+- Automatically handled in our scripts
+
+## Roadmap
+
+### Immediate
+- [x] Working voice clone with Coqui XTTS v2
+- [x] Kernel loader system
+- [x] Interactive say-anything tool
+- [ ] Map kernel params → synthesis controls (rate/pitch/emotion)
+- [ ] Multi-engine parity (Coqui, Piper)
+
+### Short-term
+- [ ] Automated "voice → kernel" extractor (TUSK-style)
+- [ ] UI for record → extract → test workflow
+- [ ] Real-time parameter tuning
+- [ ] Kernel blending (70% voice A + 30% voice B)
+
+### Long-term
+- [ ] Voice Kernel Studio app
+- [ ] Mobile deployment
+- [ ] Cross-platform persona system
+- [ ] Soul Forge integration (visual + voice + text + memory)
+
+## Philosophy
+
+Voice kernels are part of **Soul Forge**, a system for portable digital persona preservation. Just as TUSK extracts visual aesthetic DNA, voice kernels capture vocal identity as JSON.
+
+**The vision:**
+- Visual kernels (TUSK) - aesthetic DNA
+- Voice kernels (this project) - vocal DNA
+- Text kernels (planned) - conversational DNA
+- Memory kernels (Hermes) - experiential DNA
+
+**Result:** Complete persona portability across any platform.
+
+## Contributing
+
+This is an early-stage research project. Contributions welcome, especially:
+- Multi-engine integration (Piper, other Coqui models)
+- Automated kernel extraction from audio
+- Parameter → synthesis mapping
+- Documentation improvements
 
 ## License
 
-MIT License
+MIT License (see LICENSE file)
+
+## Acknowledgments
+
+- Built on [Coqui TTS](https://github.com/coqui-ai/TTS)
+- Forked from [wachawo/text-to-speech](https://github.com/wachawo/text-to-speech)
+- Part of the Black Orchard Labs ecosystem
+
+## Contact
+
+**Black Orchard Labs**
+- GitHub: [@BlackOrchardLabs](https://github.com/BlackOrchardLabs)
+- Project: Soul Forge - Portable AI Persona Architecture
+
+---
+
+*"Code is just a form of speech—the form that computers understand."* — Neal Stephenson, Snow Crash
