@@ -29,8 +29,8 @@ Listen to [demo_snowcrash_metaverse.wav](demo_snowcrash_metaverse.wav) - a voice
 
 ```bash
 # Clone the repository
-git clone https://github.com/BlackOrchardLabs/voice-kernel-tts.git
-cd voice-kernel-tts
+git clone https://github.com/BlackOrchardLabs/re-speak.git
+cd re-speak
 
 # Install dependencies (use Python 3.11)
 C:\Python311\python.exe -m pip install TTS soundfile sounddevice transformers==4.33.0
@@ -213,7 +213,7 @@ tts.tts_to_file(
 - [ ] Kernel blending (70% voice A + 30% voice B)
 
 ### Long-term
-- [ ] Voice Kernel Studio app
+- [ ] re-speak app
 - [ ] Mobile deployment
 - [ ] Cross-platform persona system
 - [ ] Soul Forge integration (visual + voice + text + memory)
@@ -248,11 +248,20 @@ MIT License (see LICENSE file)
 - Forked from [wachawo/text-to-speech](https://github.com/wachawo/text-to-speech)
 - Part of the Black Orchard Labs ecosystem
 
-## Contact
+## About Black Orchard Labs
 
-**Black Orchard Labs**
-- GitHub: [@BlackOrchardLabs](https://github.com/BlackOrchardLabs)
-- Project: Soul Forge - Portable AI Persona Architecture
+**Mission: Data Autonomy**
+
+*"Measuring the unmeasurable where your data is your own"*
+
+Building tools for data autonomy. Your conversations, your voice, your identity - under YOUR control. Because if corporations get IP protection for their data, you should own yours.
+
+**re-speak** - Your voice, captured and portable. Because your voice is yours.
+
+---
+
+**Black Orchard Labs**  
+https://github.com/BlackOrchardLabs
 
 ---
 
