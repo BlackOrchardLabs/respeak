@@ -333,7 +333,7 @@ def load_kernel(kernel_path: str, audio_path: Optional[str] = None) -> VoiceKern
 ### Files Created
 
 ```
-voice-kernel-tts/
+re-speak/
 ├── libs/
 │   ├── kernel_loader.py          # Kernel loading system
 │   └── api.py                     # Fixed exception imports
@@ -349,7 +349,7 @@ voice-kernel-tts/
 
 ### Repository State
 
-- Local: C:\Users\black\Desktop\voice-kernel-tts
+- Local: C:\Users\black\Desktop\re-speak
 - Origin: Forked from https://github.com/wachawo/text-to-speech
 - Status: Ready to push to BlackOrchardLabs
 
@@ -360,7 +360,7 @@ voice-kernel-tts/
 ### Immediate (Today)
 
 1. **Create GitHub repository**
-   - Name: `voice-kernel-tts` or `soul-forge-voice`
+   - Name: `re-speak` or `soul-forge-voice`
    - Description: "Voice kernel architecture for portable AI persona voices"
    - Push current working code
 
