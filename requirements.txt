@@ -5,8 +5,12 @@
 pyttsx3==2.90
 gtts==2.3.0
 
-# Audio playback support
+# Audio playback and recording
 pygame==2.5.2
+sounddevice>=0.4.6
+soundfile>=0.12.1
+scipy>=1.11.0
+numpy>=1.24.0
 
 # Additional dependencies for better compatibility
 requests==2.28.0
