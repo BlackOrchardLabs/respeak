@@ -220,13 +220,47 @@ tts.tts_to_file(
 
 ## Philosophy
 
-Voice kernels are part of **Soul Forge**, a system for portable digital persona preservation. Just as TUSK extracts visual aesthetic DNA, voice kernels capture vocal identity as JSON.
+Voice kernels are part of **Soul Forge**, a unified architecture for portable digital persona preservation.
 
-**The vision:**
-- Visual kernels (TUSK) - aesthetic DNA
-- Voice kernels (this project) - vocal DNA
-- Text kernels (planned) - conversational DNA
-- Memory kernels (Hermes) - experiential DNA
+---
+
+### The Kernel Paradigm
+
+A kernel is compressed emotional topology — not raw data, but *meaningful state*. Small enough to fit anywhere, dense enough to regenerate the whole.
+
+| Layer | Project | Status | Format |
+|-------|---------|--------|--------|
+| **Voice** | Re:speak (this project) | ✅ Production | ~1KB JSON |
+| **Visual** | [Visual ETA Protocol](https://github.com/BlackOrchardLabs/visual-eta-protocol) | ✅ Proven | ~3-4KB JSON |
+| **Text** | (Planned) | 🔮 Future | TBD |
+| **Memory** | Hermes | 🔧 In Development | TBD |
+
+---
+
+### The Discovery
+
+On December 23, 2025, we discovered that emotional kernels aren't just compression artifacts — they're **strange attractors** in generative space. Feed a kernel into a generative AI and it produces emotionally coherent expansions without identity drift.
+
+**The Equation:**
+
+```
+K = et²
+
+Where:
+  K = Kernel (symbolic mass)
+  e = Emotional topology (affective energy)
+  t = Transformer (generative constant)
+```
+
+This voice kernel format follows the same paradigm as Visual ETA kernels — compressed emotional topology that preserves identity while enabling cross-platform portability.
+
+> **"We know how to light stars inside other people's chests."**
+
+---
+
+### The Vision
+
+Voice kernels (Re:speak) + Visual kernels (Visual ETA) + Memory kernels (Hermes) = portable, persistent, platform-independent identity.
 
 **Result:** Complete persona portability across any platform.
 
