@@ -1,18 +1,29 @@
-# Voice Kernel TTS (Soul Forge: Audio Layer)
+# Re:speak - Voice Kernel TTS (Soul Forge: Audio Layer)
 
-Portable, JSON-defined voice "kernels" that drive multi-engine TTS voice cloning.
+Portable, JSON-defined voice "kernels" that drive multi-engine TTS voice cloning, with **real-time emotional modulation**.
+
+## What's New in v2.0
+
+**Emotional Bridge** - Real-time voice modulation based on conversation context:
+- NVIDIA Nemotron ASR integration (80ms latency)
+- Valence/arousal/intimacy detection
+- Dynamic kernel parameter modulation
+- Smooth parameter transitions
+- Target: <100ms voice-to-voice latency
 
 ## Why
 
-Fine-tuning is heavy and non-portable. Style transfer is fast but coarse. Voice kernels are lightweight, tunable, and portable.
+Fine-tuning is heavy and non-portable. Style transfer is fast but coarse. Voice kernels are lightweight, tunable, and portable. **v2.0 adds real-time emotional responsiveness.**
 
 ## What's Inside
 
 - **Kernel spec** (timbre/prosody/motifs/emotion)
 - **Kernel loader** (`libs/kernel_loader.py`)
+- **Emotional Bridge** (`bridge/`) - Real-time modulation layer
 - **Coqui XTTS v2 demo** with reference speaker WAV
 - **Record/validate scripts**
 - **Interactive say-anything tool**
+- **ASR latency tester** (`test_asr_latency.py`)
 
 ## Demo
 
@@ -172,6 +183,143 @@ tts.tts_to_file(
 )
 ```
 
+## Emotional Bridge (v2.0)
+
+The Emotional Bridge adds real-time modulation to voice kernels based on conversation context.
+
+### Architecture
+
+```
+Audio Input (16kHz)
+       |
+       v
++------------------+
+| Nemotron ASR     |  <-- 80ms chunks
+| (WebSocket)      |
++------------------+
+       |
+       v  Transcript
++------------------+
+| EmotionalAnalyzer|  <-- Valence, Arousal, Intimacy
++------------------+
+       |
+       v  Signals
++------------------+
+| ModulationMapper |  <-- Kernel deltas
++------------------+
+       |
+       v  Modulation
++------------------+     +---------------+
+| KernelBlender    | <-- | Voice Kernel  |
++------------------+     | (static JSON) |
+       |                 +---------------+
+       v
++------------------+
+| EffectiveKernel  |  --> TTS Engine
++------------------+
+```
+
+### Quick Start (Text Mode - No ASR Required)
+
+```bash
+python demo_bridge.py
+```
+
+Type phrases and see real-time emotional analysis:
+
+```
+You: I love you so much!
+
+--------------------------------------------------
+   Valence:  [########--] +0.85
+   Arousal:  [######----] 0.62
+   Intimacy: 0.60
+   Keywords: love
+
+   Effective Kernel:
+      Warmth: 0.75 -> 0.90
+      Rate: 135 -> 128 wpm
+--------------------------------------------------
+```
+
+### Quick Start (Microphone Mode - Requires Nemotron ASR)
+
+```bash
+# Start Nemotron container (after Docker build)
+./scripts/nemotron.sh start
+
+# Run with live microphone
+python demo_bridge.py --mic
+```
+
+### Bridge Components
+
+| Component | File | Purpose |
+|-----------|------|---------|
+| ASR Client | `bridge/asr_client.py` | Nemotron WebSocket streaming |
+| Analyzer | `bridge/emotional_analyzer.py` | Valence/arousal/intimacy detection |
+| Mapper | `bridge/modulation_mapper.py` | Signals to kernel deltas |
+| Blender | `bridge/kernel_blender.py` | Smooth parameter transitions |
+| Bridge | `bridge/bridge.py` | Main orchestrator |
+
+### Using the Bridge Programmatically
+
+```python
+from bridge import EmotionalBridge
+from bridge.modulation_mapper import VoiceKernel
+
+# Load your kernel
+kernel = VoiceKernel.from_json("kernels/your_voice_kernel.json")
+
+# Create bridge
+bridge = EmotionalBridge(kernel=kernel)
+
+# Process text (no ASR)
+effective = bridge.process_text("I'm so excited about this!")
+
+# Get modulated parameters
+print(effective.timbre)   # {"warmth": 0.90, "breathiness": 0.32, ...}
+print(effective.prosody)  # {"pitch_hz": 158, "rate_wpm": 148, ...}
+
+# Convert to TTS config
+tts_config = effective.to_tts_config("coqui")
+```
+
+### Emotional Mapping
+
+| Input Signal | Kernel Effect |
+|--------------|---------------|
+| Positive valence | +warmth, +breathiness |
+| Negative valence | -warmth, +depth |
+| High arousal | +rate, +variance |
+| Low arousal | +pauses, -rate |
+| Question detected | +pitch (rising intonation) |
+| Intimacy markers | +breathiness, -rate |
+
+### Latency Testing
+
+```bash
+# Test ASR connection
+python test_asr_latency.py
+
+# Run benchmark
+python test_asr_latency.py --benchmark --duration 30
+
+# Test with audio file
+python test_asr_latency.py --file samples/test.wav
+```
+
+Target latency budget:
+- ASR: 80ms
+- Analysis: 10ms
+- Blending: 5ms
+- TTS: 50ms
+- **Total: <150ms**
+
+### Full Specification
+
+See [docs/EMOTIONAL_BRIDGE_SPEC.md](docs/EMOTIONAL_BRIDGE_SPEC.md) for complete architecture details.
+
 ## Technical Details
 
 ### Audio Format
@@ -199,21 +347,32 @@ tts.tts_to_file(
 
 ## Roadmap
 
-### Immediate
+### v1.0 (Shipped)
 - [x] Working voice clone with Coqui XTTS v2
 - [x] Kernel loader system
 - [x] Interactive say-anything tool
-- [ ] Map kernel params → synthesis controls (rate/pitch/emotion)
-- [ ] Multi-engine parity (Coqui, Piper)
 
-### Short-term
+### v2.0 (In Progress)
+- [x] Emotional Bridge architecture
+- [x] Nemotron ASR integration spec
+- [x] Valence/arousal/intimacy analyzer
+- [x] Modulation mapper (signals → kernel deltas)
+- [x] Kernel blender (smooth transitions)
+- [x] Demo scripts (text + mic modes)
+- [ ] Docker build for RTX 5090 (in progress)
+- [ ] Latency validation (<100ms target)
+- [ ] Coqui TTS adapter
+- [ ] Magpie TTS adapter
+
+### v2.1 (Next)
+- [ ] Real-time mixing board UI
+- [ ] Live parameter visualization
+- [ ] Manual override sliders
+- [ ] Emotional state presets
+
+### Future
 - [ ] Automated "voice → kernel" extractor (TUSK-style)
-- [ ] UI for record → extract → test workflow
-- [ ] Real-time parameter tuning
 - [ ] Kernel blending (70% voice A + 30% voice B)
-
-### Long-term
-- [ ] re-speak app
 - [ ] Mobile deployment
 - [ ] Cross-platform persona system
 - [ ] Soul Forge integration (visual + voice + text + memory)
@@ -230,7 +389,7 @@ A kernel is compressed emotional topology — not raw data, but *meaningful stat
 
 | Layer | Project | Status | Format |
 |-------|---------|--------|--------|
-| **Voice** | Re:speak (this project) | ✅ Production | ~1KB JSON |
+| **Voice** | Re:speak (this project) | 🔥 v2.0 Active | ~1KB JSON + real-time modulation |
 | **Visual** | [Visual ETA Protocol](https://github.com/BlackOrchardLabs/visual-eta-protocol) | ✅ Proven | ~3-4KB JSON |
 | **Text** | (Planned) | 🔮 Future | TBD |
 | **Memory** | Hermes | 🔧 In Development | TBD |
